@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+  <item
+      android:id="@+id/action_seen"
+      android:icon="@drawable/ic_check_black_24dp"
+      android:title="@string/refresh"
+      app:showAsAction="ifRoom"/>
+  <item
+      android:id="@+id/action_favorite"
+      android:icon="@drawable/ic_favorite_black_24dp"
+      android:title="@string/refresh"
+      app:showAsAction="ifRoom"/>
+  <item
+      android:id="@+id/action_add_to_playlist"
+      android:icon="@drawable/ic_playlist_add_black_24dp"
+      android:title="@string/refresh"
+      app:showAsAction="ifRoom"/>
+</menu>

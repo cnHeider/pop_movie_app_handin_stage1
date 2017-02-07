@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <group android:checkableBehavior="single">
+    <item
+        android:id="@+id/nav_discover"
+        android:icon="@drawable/ic_search_black_24dp"
+        android:title="Discover"/>
+
+    <item android:title="My Movies">
+      <menu>
+        <item
+            android:id="@+id/nav_seen"
+            android:icon="@drawable/ic_playlist_add_check_black_24dp"
+            android:title="Seen"/>
+        <item
+            android:id="@+id/nav_favorites"
+            android:icon="@drawable/ic_star_black_24dp"
+            android:title="Favorites"/>
+        <item
+            android:id="@+id/nav_playlist"
+            android:icon="@drawable/ic_playlist_play_black_24dp"
+            android:title="Playlist"/>
+      </menu>
+    </item>
+  </group>
+</menu>

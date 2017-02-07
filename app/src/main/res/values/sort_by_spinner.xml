@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="sort_by_prompt">Sort by</string>
+
+  <string-array name="sort_by_options">
+    <!--<item >Title</item>-->
+    <!--<item>Release Date</item>-->
+    <item>Popularity</item>
+    <item>User Rating</item>
+  </string-array>
+</resources>
