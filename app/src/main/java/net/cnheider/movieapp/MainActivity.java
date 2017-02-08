@@ -11,8 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
-import com.facebook.stetho.Stetho;
-
 import net.cnheider.movieapp.fragments.DiscoverFragment;
 import net.cnheider.movieapp.fragments.FavoritesFragment;
 import net.cnheider.movieapp.fragments.PlaylistFragment;
@@ -41,8 +39,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     mMainContentFrame = (FrameLayout) findViewById(R.id.main_content_frame);
     mFragmentManager = getFragmentManager();
-
-    Stetho.initializeWithDefaults(this);
 
     mFragmentManager.beginTransaction().replace(mMainContentFrame.getId(), new DiscoverFragment()).commit();
 
