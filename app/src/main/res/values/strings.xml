@@ -1,5 +1,11 @@
 <resources>
-  <string name="app_name">MovieApp</string>
+  <string name="app_name" translatable="false">MovieApp</string>
+
+  <string name="preference_key_sort_by" translatable="false">sort_by</string>
+  <string name="preference_label_sort_by">Sort By</string>
+  <string name="rating_value" translatable="false">rating</string>
+  <string name="popularity_value" translatable="false">popularity</string>
+
 
   <string name="navigation_drawer_open">Open navigation drawer</string>
   <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -12,4 +18,15 @@
   <string name="refresh">Refresh</string>
   <string name="movie_detail_activity">Movie detail</string>
   <string name="yet_to_be_implemented">Yet to be implemented</string>
+  <string name="nav_settings">Settings</string>
+  <string name="nav_playlist">Playlist</string>
+  <string name="nav_favorites">Favorites</string>
+  <string name="nav_seen">Seen</string>
+  <string name="nav_my_movies">My Movies</string>
+  <string name="nav_discover">Discover</string>
+  <string name="settings_activity">Settings</string>
+  <string name="resolution">Resolution</string>
+  <string name="release_date" translatable="false">Release Date</string>
+  <string name="utilities">Utilities</string>
+  <string name="clear_list">Clear List</string>
 </resources>

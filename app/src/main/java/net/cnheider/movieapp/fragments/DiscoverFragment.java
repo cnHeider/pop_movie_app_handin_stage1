@@ -13,6 +13,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,8 +27,8 @@ import android.widget.Toast;
 
 import net.cnheider.movieapp.MovieDetailActivity;
 import net.cnheider.movieapp.R;
-import net.cnheider.movieapp.movie.Movie;
-import net.cnheider.movieapp.movie.MovieAdapter;
+import net.cnheider.movieapp.data.movie.Movie;
+import net.cnheider.movieapp.data.movie.MovieAdapter;
 import net.cnheider.movieapp.utilities.NetworkUtilities;
 import net.cnheider.movieapp.utilities.SortingUtilities;
 import net.cnheider.movieapp.utilities.TMDBUtilities;
@@ -36,19 +37,29 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public class DiscoverFragment extends Fragment implements MovieAdapter.MovieAdapterOnClickHandler {
   private static final String TAG = DiscoverFragment.class.getSimpleName();
   Context mContext;
-  RecyclerView mRecyclerView;
   RecyclerView.LayoutManager mLayoutManager;
   MovieAdapter mAdapter;
-  ProgressBar mLoadingIndicator;
   ArrayList<Movie> mPopularMovies;
+  @BindView(R.id.recycler_view)
+  RecyclerView mRecyclerView;
+  @BindView(R.id.progressBar)
+  ProgressBar mLoadingIndicator;
+  @BindView(R.id.sort_by_action_button)
   FloatingActionButton mSortByActionButton;
-  Spinner mSortBySpinner;
+  @BindView(R.id.sort_by_layout)
   LinearLayout mSortByLayout;
+  @BindView(R.id.sort_by_spinner)
+  Spinner mSortBySpinner;
   private int mShortAnimationDuration;
   private int mCurrentSortSelected;
+  private Unbinder unbinder;
 
   public DiscoverFragment() {
     // Required empty public constructor
@@ -65,9 +76,15 @@ public class DiscoverFragment extends Fragment implements MovieAdapter.MovieAdap
   }
 
   private void applyGridLayoutManager() {
-    int num_of_columns = 2;
-    mLayoutManager = new GridLayoutManager(mContext, num_of_columns, GridLayoutManager.VERTICAL, false);
+    mLayoutManager = new GridLayoutManager(mContext, calculateNoOfColumns(mContext), GridLayoutManager.VERTICAL, false);
     mRecyclerView.setLayoutManager(mLayoutManager);
+  }
+
+  public static int calculateNoOfColumns(Context context) {
+    DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+    float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+    int noOfColumns = (int) (dpWidth / 180);
+    return noOfColumns;
   }
 
   public void crossfade() {
@@ -156,10 +173,8 @@ public class DiscoverFragment extends Fragment implements MovieAdapter.MovieAdap
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_discover, container, false);
 
-    mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
-    mLoadingIndicator = (ProgressBar) view.findViewById(R.id.progressBar);
+    unbinder = ButterKnife.bind(this, view);
 
-    mSortByActionButton = (FloatingActionButton) view.findViewById(R.id.sort_by_action_button);
     mSortByActionButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -172,9 +187,6 @@ public class DiscoverFragment extends Fragment implements MovieAdapter.MovieAdap
 
     mShortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-    mSortByLayout = (LinearLayout) view.findViewById(R.id.sort_by_layout);
-
-    mSortBySpinner = (Spinner) view.findViewById(R.id.sort_by_spinner);
     ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(mContext, R.array.sort_by_options, android.R.layout.simple_spinner_item);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     mSortBySpinner.setAdapter(adapter);
@@ -240,6 +252,12 @@ public class DiscoverFragment extends Fragment implements MovieAdapter.MovieAdap
   public void onSaveInstanceState(Bundle outState) {
     outState.putParcelableArrayList("movies", mPopularMovies);
     super.onSaveInstanceState(outState);
+  }
+
+  @Override
+  public void onDestroyView() {
+    super.onDestroyView();
+    unbinder.unbind();
   }
 
   @Override

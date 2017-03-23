@@ -30,6 +30,8 @@ public class NetworkUtilities {
   private static final String API_BASEURL = "https://api.themoviedb.org/3/movie";
   private static final String POPULAR_PATH = "popular";
   private static final String TOP_RATED_PATH = "top_rated";
+  private static final String TRAILERS_PATH = "videos";
+  private static final String REVIEWS_PATH = "reviews";
   private static final String API_KEY_PARAM = "api_key";
   private static final String format = "json";
   private static final String size_w92 = "w92";
@@ -42,7 +44,7 @@ public class NetworkUtilities {
 
   private static final String size_default = size_w185;
 
-  private static final String auth_v3_api_key = "insert key here"; //TODO: insert api key from tmdb
+  private static final String auth_v3_api_key = ""; //TODO: insert api key from tmdb
 
   public static URL getPopularURL() {
     Uri builtUri = Uri.parse(API_BASEURL).buildUpon().appendPath(POPULAR_PATH).appendQueryParameter(API_KEY_PARAM, auth_v3_api_key).build();
@@ -61,6 +63,36 @@ public class NetworkUtilities {
 
   public static URL getTopRatedURL() {
     Uri builtUri = Uri.parse(API_BASEURL).buildUpon().appendPath(TOP_RATED_PATH).appendQueryParameter(API_KEY_PARAM, auth_v3_api_key).build();
+
+    URL url = null;
+    try {
+      url = new URL(builtUri.toString());
+    } catch (MalformedURLException e) {
+      e.printStackTrace();
+    }
+
+    Log.v(TAG, "Built URI " + url);
+
+    return url;
+  }
+
+  public static URL getTrailerURL(String movieId) {
+    Uri builtUri = Uri.parse(API_BASEURL).buildUpon().appendPath(movieId).appendPath(TRAILERS_PATH).appendQueryParameter(API_KEY_PARAM, auth_v3_api_key).build();
+
+    URL url = null;
+    try {
+      url = new URL(builtUri.toString());
+    } catch (MalformedURLException e) {
+      e.printStackTrace();
+    }
+
+    Log.v(TAG, "Built URI " + url);
+
+    return url;
+  }
+
+  public static URL getReviewURL(String movieId) {
+    Uri builtUri = Uri.parse(API_BASEURL).buildUpon().appendPath(movieId).appendPath(REVIEWS_PATH).appendQueryParameter(API_KEY_PARAM, auth_v3_api_key).build();
 
     URL url = null;
     try {

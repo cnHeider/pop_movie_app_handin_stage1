@@ -1,4 +1,4 @@
-package net.cnheider.movieapp.movie;
+package net.cnheider.movieapp.data.movie;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -8,11 +8,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import net.cnheider.movieapp.R;
 
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by heider on 27/01/17.
@@ -35,6 +38,32 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     notifyDataSetChanged();
   }
 
+  public interface MovieAdapterOnClickHandler {
+    void onClick(Movie movie);
+  }
+
+  public class MovieAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    @BindView(R.id.movie_image)
+    ImageView movie_poster_imageview;
+    @BindView(R.id.movie_title)
+    TextView movie_title_textview;
+    @BindView(R.id.movie_rating)
+    TextView movie_rating_textview;
+
+    public MovieAdapterViewHolder(View view) {
+      super(view);
+      ButterKnife.bind(this, view);
+      movie_poster_imageview.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+      int adapterPosition = getAdapterPosition();
+      Movie movie = mMovieDataset.get(adapterPosition);
+      mClickHandler.onClick(movie);
+    }
+  }
+
   @Override
   public MovieAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.grid_item_movie, parent, false);
@@ -47,7 +76,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     final Movie movie = mMovieDataset.get(position);
     view_holder.movie_title_textview.setText(movie.title);
     view_holder.movie_rating_textview.setText(String.valueOf(movie.user_rating));
-    Picasso.with(mContext).load(movie.poster_image).into(view_holder.movie_poster_imageview);
+    Glide.with(mContext).load(movie.poster_image).into(view_holder.movie_poster_imageview);
   }
 
   @Override
@@ -58,34 +87,5 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
   @Override
   public int getItemCount() {
     return mMovieDataset.size();
-  }
-
-  /**
-   * The interface that receives onClick messages.
-   */
-  public interface MovieAdapterOnClickHandler {
-    void onClick(Movie movie);
-  }
-
-  public class MovieAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-    public final ImageView movie_poster_imageview;
-    public final TextView movie_title_textview;
-    public final TextView movie_rating_textview;
-
-    public MovieAdapterViewHolder(View view) {
-      super(view);
-      movie_poster_imageview = (ImageView) view.findViewById(R.id.movie_image);
-      movie_title_textview = (TextView) view.findViewById(R.id.movie_title);
-      movie_rating_textview = (TextView) view.findViewById(R.id.movie_rating);
-
-      movie_poster_imageview.setOnClickListener(this);
-    }
-
-    @Override
-    public void onClick(View v) {
-      int adapterPosition = getAdapterPosition();
-      Movie movie = mMovieDataset.get(adapterPosition);
-      mClickHandler.onClick(movie);
-    }
   }
 }

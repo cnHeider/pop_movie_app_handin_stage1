@@ -2,6 +2,7 @@ package net.cnheider.movieapp;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -16,11 +17,17 @@ import net.cnheider.movieapp.fragments.FavoritesFragment;
 import net.cnheider.movieapp.fragments.PlaylistFragment;
 import net.cnheider.movieapp.fragments.SeenFragment;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-  DrawerLayout mDrawer;
-  FragmentManager mFragmentManager;
+  @BindView(R.id.main_content_frame)
   FrameLayout mMainContentFrame;
+  @BindView(R.id.drawer_layout)
+  DrawerLayout mDrawer;
+
+  FragmentManager mFragmentManager;
 
   @Override
   public void onBackPressed() {
@@ -37,12 +44,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    mMainContentFrame = (FrameLayout) findViewById(R.id.main_content_frame);
+    ButterKnife.bind(this);
     mFragmentManager = getFragmentManager();
 
     mFragmentManager.beginTransaction().replace(mMainContentFrame.getId(), new DiscoverFragment()).commit();
-
-    mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
     NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);
@@ -62,13 +67,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
       fragment = new DiscoverFragment();
     } else if (id == R.id.nav_seen) {
       fragment = new SeenFragment();
-      //Bundle args = new Bundle();
-      //args.putInt(SeenFragment.ARG_MOVIE_ID, id);
-      //fragment.setArguments(args);
     } else if (id == R.id.nav_favorites) {
       fragment = new FavoritesFragment();
     } else if (id == R.id.nav_playlist) {
       fragment = new PlaylistFragment();
+    } else if (id == R.id.nav_settings) {
+      Intent i = new Intent(this, SettingsActivity.class);
+      startActivity(i);
     }
 
     if (fragment != null) {

@@ -3,12 +3,12 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
   <item
       android:id="@+id/action_seen"
-      android:icon="@drawable/ic_check_black_24dp"
+      android:icon="@drawable/ic_check_box_outline_blank_black_24dp"
       android:title="@string/refresh"
       app:showAsAction="ifRoom"/>
   <item
       android:id="@+id/action_favorite"
-      android:icon="@drawable/ic_favorite_black_24dp"
+      android:icon="@drawable/ic_star_border_black_24dp"
       android:title="@string/refresh"
       app:showAsAction="ifRoom"/>
   <item

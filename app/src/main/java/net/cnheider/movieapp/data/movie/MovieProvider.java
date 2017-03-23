@@ -1,17 +1,13 @@
-package net.cnheider.movieapp.movie;
+package net.cnheider.movieapp.data.movie;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.util.Log;
-
-import net.cnheider.movieapp.utilities.DatabaseHelper;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -19,9 +15,9 @@ import java.util.HashSet;
 public class MovieProvider extends ContentProvider {
   private static final String TAG = MovieProvider.class.getSimpleName();
   private static final int MOVIES = 100;
-  private static final int MOVIE_WITH_ID = 200;
+  private static final int MOVIE_WITH_ID = 101;
   private static final UriMatcher mUriMatcher = buildUriMatcher();
-  private DatabaseHelper mDatabaseHelper;
+  private MovieDbHelper mDatabaseHelper;
 
   private static UriMatcher buildUriMatcher() {
     final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -35,8 +31,8 @@ public class MovieProvider extends ContentProvider {
 
   @Override
   public boolean onCreate() {
-    mDatabaseHelper = new DatabaseHelper(getContext());
-    return false;
+    mDatabaseHelper = new MovieDbHelper(getContext());
+    return true;
   }
 
   @Override
@@ -80,14 +76,14 @@ public class MovieProvider extends ContentProvider {
 
   @Override
   public Uri insert(Uri uri, ContentValues values) {
-    final SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
+    SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
     Uri returnUri;
     switch (mUriMatcher.match(uri)) {
       case MOVIES: {
         long _id = db.insert(MovieContract.MovieEntry.TABLE_MOVIES, null, values);
         // insert unless it is already contained in the database
         if (_id > 0) {
-          returnUri = MovieContract.MovieEntry.buildFlavorsUri(_id);
+          returnUri = MovieContract.MovieEntry.MoviesUri(_id);
         } else {
           throw new android.database.SQLException("Failed to insert row into: " + uri);
         }
@@ -104,44 +100,7 @@ public class MovieProvider extends ContentProvider {
 
   @Override
   public int bulkInsert(Uri uri, ContentValues[] values) {
-    final SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
-    final int match = mUriMatcher.match(uri);
-    switch (match) {
-      case MOVIES:
-        // allows for multiple transactions
-        db.beginTransaction();
-
-        // keep track of successful inserts
-        int numInserted = 0;
-        try {
-          for (ContentValues value : values) {
-            if (value == null) {
-              throw new IllegalArgumentException("Cannot have null content values");
-            }
-            long _id = -1;
-            try {
-              _id = db.insertOrThrow(MovieContract.MovieEntry.TABLE_MOVIES, null, value);
-            } catch (SQLiteConstraintException e) {
-              Log.w(TAG, "Attempting to insert " +
-                  value.getAsString(MovieContract.MovieEntry.COLUMN_TITLE) + " but value is already in database.");
-            }
-            if (_id != -1) {
-              numInserted++;
-            }
-          }
-          if (numInserted > 0) {
-            db.setTransactionSuccessful();
-          }
-        } finally {
-          db.endTransaction();
-        }
-        if (numInserted > 0) {
-          getContext().getContentResolver().notifyChange(uri, null);
-        }
-        return numInserted;
-      default:
-        return super.bulkInsert(uri, values);
-    }
+    throw new RuntimeException("Not implemented");
   }
 
   @Override
@@ -152,11 +111,14 @@ public class MovieProvider extends ContentProvider {
     switch (match) {
       case MOVIES:
         numDeleted = db.delete(MovieContract.MovieEntry.TABLE_MOVIES, selection, selectionArgs);
-        db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + MovieContract.MovieEntry.TABLE_MOVIES + "'"); // reset _ID
+        db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + MovieContract.MovieEntry.TABLE_MOVIES +
+                   "'"); // reset _ID
         break;
       case MOVIE_WITH_ID:
-        numDeleted = db.delete(MovieContract.MovieEntry.TABLE_MOVIES, MovieContract.MovieEntry._ID + " = ?", new String[]{String.valueOf(ContentUris.parseId(uri))});
-        db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + MovieContract.MovieEntry.TABLE_MOVIES + "'");        // reset _ID
+        numDeleted = db.delete(MovieContract.MovieEntry.TABLE_MOVIES,
+            MovieContract.MovieEntry._ID + " = ?", new String[]{String.valueOf(ContentUris.parseId(uri))});
+        db.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + MovieContract.MovieEntry.TABLE_MOVIES +
+                   "'");        // reset _ID
 
         break;
       default:
@@ -181,7 +143,8 @@ public class MovieProvider extends ContentProvider {
         break;
       }
       case MOVIE_WITH_ID: {
-        numUpdated = db.update(MovieContract.MovieEntry.TABLE_MOVIES, values, MovieContract.MovieEntry._ID + " = ?", new String[]{String.valueOf(ContentUris.parseId(uri))});
+        numUpdated = db.update(MovieContract.MovieEntry.TABLE_MOVIES, values,
+            MovieContract.MovieEntry._ID + " = ?", new String[]{String.valueOf(ContentUris.parseId(uri))});
         break;
       }
       default: {

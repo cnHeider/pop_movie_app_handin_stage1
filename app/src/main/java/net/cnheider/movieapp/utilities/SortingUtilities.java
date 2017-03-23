@@ -1,6 +1,6 @@
 package net.cnheider.movieapp.utilities;
 
-import net.cnheider.movieapp.movie.Movie;
+import net.cnheider.movieapp.data.movie.Movie;
 
 import java.util.ArrayList;
 import java.util.Collections;

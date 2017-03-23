@@ -1,4 +1,4 @@
-package net.cnheider.movieapp.movie;
+package net.cnheider.movieapp.data.movie;
 
 import android.net.Uri;
 import android.os.Parcel;
@@ -24,6 +24,8 @@ public class Movie implements Parcelable {
       return new Movie[size];
     }
   };
+
+  public int id;
   public String title;
   public String synopsis;
   public Uri poster_image;
@@ -35,13 +37,14 @@ public class Movie implements Parcelable {
   public Movie() {
   }
 
-  public Movie(String title, Uri poster_image, double user_rating, double popularity, String synopsis, String release_date) {
-    this(title, poster_image, user_rating, popularity);
+  public Movie(int id, String title, Uri poster_image, double user_rating, double popularity, String synopsis, String release_date) {
+    this(id, title, poster_image, user_rating, popularity);
     this.synopsis = synopsis;
     this.release_date = release_date;
   }
 
-  public Movie(String title, Uri poster_image, double user_rating, double popularity) {
+  public Movie(int id, String title, Uri poster_image, double user_rating, double popularity) {
+    this.id = id;
     this.title = title;
     this.poster_image = poster_image;
     this.user_rating = user_rating;
@@ -49,6 +52,7 @@ public class Movie implements Parcelable {
   }
 
   protected Movie(Parcel in) {
+    id = in.readInt();
     title = in.readString();
     synopsis = in.readString();
     poster_image = in.readParcelable(Uri.class.getClassLoader());
@@ -75,6 +79,7 @@ public class Movie implements Parcelable {
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
+    dest.writeInt(id);
     dest.writeString(title);
     dest.writeString(synopsis);
     dest.writeParcelable(poster_image, flags);
