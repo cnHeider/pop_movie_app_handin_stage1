@@ -105,7 +105,7 @@ public class FavoritesCursorAdapter extends RecyclerView.Adapter<FavoritesCursor
     public void onClick(View v) {
       int db_id = (int) v.getTag();
       mCursor.moveToPosition(db_id);
-      Movie movie = new Movie(mCursor.getInt(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID)), mCursor.getString(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE)), Uri.parse(mCursor.getString(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_IMAGE_URI))), mCursor.getDouble(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RATING)), mCursor.getDouble(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POPULARITY)), mCursor.getString(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_IMAGE_URI)), mCursor.getString(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_IMAGE_URI)));
+      Movie movie = new Movie(mCursor.getInt(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TMDB_ID)), mCursor.getString(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE)), Uri.parse(mCursor.getString(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_IMAGE_URI))), mCursor.getDouble(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RATING)), mCursor.getDouble(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POPULARITY)), mCursor.getString(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_SYNOPSIS)), mCursor.getString(mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE)));
       mClickHandler.onClick(movie);
     }
   }

@@ -6,6 +6,8 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
 
+import net.cnheider.movieapp.BuildConfig;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -44,7 +46,7 @@ public class NetworkUtilities {
 
   private static final String size_default = size_w185;
 
-  private static final String auth_v3_api_key = ""; //TODO: insert api key from tmdb
+  private static final String auth_v3_api_key = BuildConfig.THE_MOVIE_DB_API_TOKEN;
 
   public static URL getPopularURL() {
     Uri builtUri = Uri.parse(API_BASEURL).buildUpon().appendPath(POPULAR_PATH).appendQueryParameter(API_KEY_PARAM, auth_v3_api_key).build();

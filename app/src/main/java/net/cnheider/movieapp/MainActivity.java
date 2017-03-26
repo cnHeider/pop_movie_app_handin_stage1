@@ -1,16 +1,19 @@
 package net.cnheider.movieapp;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
+
+import com.facebook.stetho.Stetho;
 
 import net.cnheider.movieapp.fragments.DiscoverFragment;
 import net.cnheider.movieapp.fragments.FavoritesFragment;
@@ -43,11 +46,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    Stetho.initializeWithDefaults(this);
 
     ButterKnife.bind(this);
-    mFragmentManager = getFragmentManager();
+    mFragmentManager = getSupportFragmentManager();
 
-    mFragmentManager.beginTransaction().replace(mMainContentFrame.getId(), new DiscoverFragment()).commit();
+    Fragment f;
+    if (savedInstanceState != null) {
+      f =  getSupportFragmentManager().findFragmentByTag("fragment_tag");
+      if(f==null){
+        f = new DiscoverFragment();
+      }
+    } else {
+      f = new DiscoverFragment();
+    }
+
+    mFragmentManager.beginTransaction().replace(mMainContentFrame.getId(), f, "fragment_tag").commit();
 
     NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
     navigationView.setNavigationItemSelectedListener(this);

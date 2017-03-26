@@ -2,13 +2,15 @@ package net.cnheider.movieapp.fragments;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,8 +29,10 @@ import android.widget.Toast;
 
 import net.cnheider.movieapp.MovieDetailActivity;
 import net.cnheider.movieapp.R;
+import net.cnheider.movieapp.data.FavoritesCursorAdapter;
 import net.cnheider.movieapp.data.movie.Movie;
 import net.cnheider.movieapp.data.movie.MovieAdapter;
+import net.cnheider.movieapp.data.movie.MovieContract;
 import net.cnheider.movieapp.utilities.NetworkUtilities;
 import net.cnheider.movieapp.utilities.SortingUtilities;
 import net.cnheider.movieapp.utilities.TMDBUtilities;
@@ -60,6 +64,9 @@ public class DiscoverFragment extends Fragment implements MovieAdapter.MovieAdap
   private int mShortAnimationDuration;
   private int mCurrentSortSelected;
   private Unbinder unbinder;
+  private Parcelable mLayoutState;
+  private static final String LAYOUT_STATE_KEY = "layout_state";
+  private static final String POP_MOVIE_KEY ="movies";
 
   public DiscoverFragment() {
     // Required empty public constructor
@@ -84,7 +91,7 @@ public class DiscoverFragment extends Fragment implements MovieAdapter.MovieAdap
     DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
     float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
     int noOfColumns = (int) (dpWidth / 180);
-    return noOfColumns;
+    return noOfColumns >= 2 ? noOfColumns : 2;
   }
 
   public void crossfade() {
@@ -139,12 +146,12 @@ public class DiscoverFragment extends Fragment implements MovieAdapter.MovieAdap
     @Override
     protected void onPreExecute() {
       super.onPreExecute();
-      mLoadingIndicator.setVisibility(View.VISIBLE);
+      if (mLoadingIndicator != null && mLoadingIndicator.getVisibility()==View.VISIBLE);
     }
 
     @Override
     protected void onPostExecute(ArrayList<Movie> movieData) {
-      mLoadingIndicator.setVisibility(View.INVISIBLE);
+      if (mLoadingIndicator != null && mLoadingIndicator.getVisibility()==View.INVISIBLE)
       if (movieData != null) {
         mPopularMovies = movieData;
         mAdapter.setMovieData(mPopularMovies);
@@ -163,10 +170,14 @@ public class DiscoverFragment extends Fragment implements MovieAdapter.MovieAdap
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    if (savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
-    } else {
-      mPopularMovies = savedInstanceState.getParcelableArrayList("movies");
-    }
+
+  }
+
+  @Override
+  public void onPause() {
+    super.onPause();
+
+    mLayoutState = mLayoutManager.onSaveInstanceState();
   }
 
   @Override
@@ -187,7 +198,9 @@ public class DiscoverFragment extends Fragment implements MovieAdapter.MovieAdap
 
     mShortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(mContext, R.array.sort_by_options, android.R.layout.simple_spinner_item);
+    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(mContext, R.array
+        .pref_sort_by_values, android.R
+        .layout.simple_spinner_item);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     mSortBySpinner.setAdapter(adapter);
 
@@ -195,23 +208,35 @@ public class DiscoverFragment extends Fragment implements MovieAdapter.MovieAdap
     mSortBySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
       public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        Log.d(TAG, "onItemSelected: pos: " + position + ", id: " + id + " selected: " + mCurrentSortSelected);
-        String item = parent.getItemAtPosition(position).toString();
-        switch (item) {
-          case "Popularity":
+        switch (position) {
+          case 0:
             new FetchMoviesTask().execute("popular");
             slideOut();
             break;
-          case "User Rating":
+          case 1:
             new FetchMoviesTask().execute("top_rated");
             slideOut();
             break;
-          case "Release Date":
+          case 2:
+            ArrayList<Movie> arrayList = new ArrayList<Movie>();
+            Cursor movieCursor = mContext.getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, null,
+                MovieContract.MovieEntry.COLUMN_FAVORITE + " = 1", null, null);
+            movieCursor.moveToFirst();
+            while(!movieCursor.isAfterLast()) {
+              Movie movie = new Movie(movieCursor.getInt(movieCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TMDB_ID)), movieCursor.getString(movieCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE)), Uri.parse(movieCursor.getString(movieCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_IMAGE_URI))), movieCursor.getDouble(movieCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RATING)), movieCursor.getDouble(movieCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POPULARITY)), movieCursor.getString(movieCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_SYNOPSIS)), movieCursor.getString(movieCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE)));
+
+              arrayList.add(movie); //add the item
+              movieCursor.moveToNext();
+            }
+            mPopularMovies = arrayList;
+            mAdapter.setMovieData(mPopularMovies);
+            break;
+          case 3:
             mPopularMovies = SortingUtilities.sortByReleaseDate(mPopularMovies, false);
             slideOut();
             mAdapter.setMovieData(mPopularMovies);
             break;
-          case "Title":
+          case 4:
             mPopularMovies = SortingUtilities.sortByTitle(mPopularMovies, true);
             slideOut();
             mAdapter.setMovieData(mPopularMovies);
@@ -232,12 +257,15 @@ public class DiscoverFragment extends Fragment implements MovieAdapter.MovieAdap
 
     applyStaggeredGridLayoutManager();
 
-    mPopularMovies = new ArrayList<>();
+    if (savedInstanceState != null && savedInstanceState.containsKey(POP_MOVIE_KEY)) {
+      mPopularMovies = savedInstanceState.getParcelableArrayList(POP_MOVIE_KEY);
+    }else {
+      mPopularMovies = new ArrayList<>();
 
-    if (NetworkUtilities.isOnline(mContext)) {
-      new FetchMoviesTask().execute("popular");
+      if (NetworkUtilities.isOnline(mContext)) {
+        new FetchMoviesTask().execute("popular");
+      }
     }
-
     mAdapter = new MovieAdapter(container.getContext(), mPopularMovies, this);
     mRecyclerView.setAdapter(mAdapter);
     return view;
@@ -246,12 +274,18 @@ public class DiscoverFragment extends Fragment implements MovieAdapter.MovieAdap
   @Override
   public void onResume() {
     super.onResume();
+
+    if (mLayoutState != null) {
+      mLayoutManager.onRestoreInstanceState(mLayoutState);
+    }
   }
 
   @Override
   public void onSaveInstanceState(Bundle outState) {
-    outState.putParcelableArrayList("movies", mPopularMovies);
     super.onSaveInstanceState(outState);
+    outState.putParcelableArrayList(POP_MOVIE_KEY, mPopularMovies);
+    mLayoutState = mLayoutManager.onSaveInstanceState();
+    outState.putParcelable(LAYOUT_STATE_KEY, mLayoutState);
   }
 
   @Override
@@ -266,7 +300,7 @@ public class DiscoverFragment extends Fragment implements MovieAdapter.MovieAdap
   }
 
   private void applyStaggeredGridLayoutManager() {
-    int num_of_columns = 2;
+    int num_of_columns = calculateNoOfColumns(mContext);
     mLayoutManager = new StaggeredGridLayoutManager(num_of_columns, StaggeredGridLayoutManager.VERTICAL);
     mRecyclerView.setLayoutManager(mLayoutManager);
   }
@@ -296,7 +330,6 @@ public class DiscoverFragment extends Fragment implements MovieAdapter.MovieAdap
 
   @Override
   public void onClick(Movie movie) {
-    //Toast.makeText(mContext, movie.toString(), Toast.LENGTH_SHORT).show();
     Intent intentToStartDetailActivity = new Intent(mContext, MovieDetailActivity.class);
     intentToStartDetailActivity.putExtra(MovieDetailActivity.EXTRA_MOVIE, (Parcelable) movie);
     startActivity(intentToStartDetailActivity);

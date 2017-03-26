@@ -277,6 +277,12 @@ public class MovieDetailActivity extends AppCompatActivity implements TrailerAda
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     int item_id = item.getItemId();
+
+    if(item_id == android.R.id.home){
+      onBackPressed();
+      return true;
+    }
+
     ContentValues cv = new ContentValues();
 
     cv.put(MovieContract.MovieEntry.COLUMN_TMDB_ID, mMovie.id);

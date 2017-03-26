@@ -33,7 +33,6 @@
           android:layout_width="0dp"
           android:layout_height="wrap_content"
           android:layout_weight="1"
-          android:text="@string/title"
           android:textSize="@dimen/Title_Text_Size"
           tools:text="Title"/>
 
@@ -47,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/rating"
+            tools:text="@string/rating"
             android:textSize="@dimen/Text_Size"
             android:textStyle="normal|bold"/>
 
@@ -58,7 +57,7 @@
         android:id="@+id/release_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/release_date"/>
+        tools:text="@string/release_date"/>
 
     <TextView
         android:id="@+id/movie_description"
